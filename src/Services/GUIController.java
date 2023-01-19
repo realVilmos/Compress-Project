@@ -1,4 +1,4 @@
-package Model.Services;
+package Services;
 import Model.Folder;
 import Model.HierarchyInterface;
 import Model.IconTextRenderer;

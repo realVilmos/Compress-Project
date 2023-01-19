@@ -1,6 +1,6 @@
 package CompressionProject;
-import Model.Services.GUIController;
-import Model.Services.HierarchyService;
+import Services.GUIController;
+import Services.HierarchyService;
 import com.formdev.flatlaf.FlatLightLaf;
 public class CompressorMain {
 
