@@ -1,70 +1,69 @@
 package javaapplication1;
-
-import java.awt.Point;
+import Model.IconTextRenderer;
 import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Stack;
-import javaapplication1.Table.IconTextRenderer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javaapplication1.Table.TableModel;
+import com.formdev.flatlaf.FlatLightLaf;
+import java.awt.event.ActionListener;
 import javax.accessibility.AccessibleContext;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JRootPane;
-import javax.swing.JTable;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 public class GUI extends javax.swing.JFrame {
     
-    private TableModel model;
-    private Stack<Folder> stack = new Stack<>();
-    
-    private void updateGUI(){
-        model.setElements(stack.peek().getChildren());
-        String path = "";
-        
-        for(Folder elem : stack){
-            if(elem.getPath() == null){
-                path += "\\";
-            }else{
-                path += elem.getPath().getFileName().toString() + "\\";
-            }
-        }
-        navigationTextField.setText(path);
-    }
-    
-    
     public GUI() {
+        FlatLightLaf.setup();
         initComponents();
-        deCompressBtn.setVisible(false);
-        stack.push(new Folder(null, null));
-        model = new TableModel();
-        toCompressTable.setModel(model);
-        toCompressTable.getColumnModel().getColumn(0).setCellRenderer( new IconTextRenderer() );
-        //Duoble click listener File/Folder
-        toCompressTable.addMouseListener(new MouseAdapter(){
-            public void mousePressed(MouseEvent mouseEvent){
-                JTable table = (JTable) mouseEvent.getSource();
-                Point point = mouseEvent.getPoint();
-                int row = table.rowAtPoint(point);
-                if(mouseEvent.getClickCount() == 2 && table.getSelectedRow() != -1){
-
-                    if(stack.peek() instanceof Folder){
-                        HierarchyInterface choosenFolder = stack.peek().getChildren().get(row);
-                        stack.push((Folder)choosenFolder);
-                        updateGUI();
-                    }else{
-                        //Meg kell nyitni a fájlt
-                    }
-                    
-                }
-            }
-        });
+        deCompressBtn.setVisible(false); 
     }
-
+    
+    public java.io.File[] getSelectedFilesFromDialog(){
+        JFileChooser chooser = new JFileChooser();
+        chooser.setMultiSelectionEnabled(true);
+        chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        chooser.setDialogTitle("Kérem válasszon ki fájlokat és/vagy mappákat");
+        if(chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
+            return chooser.getSelectedFiles();
+        }
+        return null;
+    }
+    
+    public void displayErrorMessage(String errorMessage){
+        JOptionPane.showMessageDialog(this, errorMessage);
+    }
+    
+    public void setTableModel(AbstractTableModel tableModel){
+        toCompressTable.setModel(tableModel);
+    }
+    
+    public void addPlusButtonListener(ActionListener actionListener){
+        addElementToCompressBtn.addActionListener(actionListener);
+    }
+    
+    public void addMinusButtonListener(ActionListener actionListener){
+        removeElementToCompressBtn.addActionListener(actionListener);
+    }
+    
+    public void addTableMouseListener(MouseAdapter mouseAdapter){
+        toCompressTable.addMouseListener(mouseAdapter);
+    }
+    
+    public void addBackButtonListener(ActionListener actionListener){
+        backButton.addActionListener(actionListener);
+    }
+    
+    public void setNavigationTextField(String text){
+        navigationTextField.setText(text);
+    }
+    
+    public int[] getSelectedTableRows(){
+        return toCompressTable.getSelectedRows();
+    }
+    
+    public void setTableColumnModel(int columnIndex, DefaultTableCellRenderer renderer){
+        toCompressTable.getColumnModel().getColumn(columnIndex).setCellRenderer(renderer);
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -344,14 +343,7 @@ public class GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_chooseCompressedFileBtnActionPerformed
 
     private void removeElementToCompressBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeElementToCompressBtnActionPerformed
-        System.out.println("If kívűl");
-        Folder currentFolder = stack.peek();
-        int selectedRows[] = toCompressTable.getSelectedRows();
-        for(int i = selectedRows.length-1; i >= 0; i--){
-            currentFolder.removeChild(selectedRows[i]);
-            System.out.println(currentFolder.getChildren().size());
-        }
-        updateGUI();
+        
     }//GEN-LAST:event_removeElementToCompressBtnActionPerformed
 
     private void CompressBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CompressBtnActionPerformed
@@ -359,36 +351,7 @@ public class GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_CompressBtnActionPerformed
 
     private void addElementToCompressBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addElementToCompressBtnActionPerformed
-        Folder currentFolder = stack.peek();
-
-        JFileChooser chooser = new JFileChooser();
-        chooser.setMultiSelectionEnabled(true);
-        chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        chooser.setDialogTitle("Kérem válasszon ki fájlokat és/vagy mappákat");
-        if(chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
-            java.io.File files[] = chooser.getSelectedFiles();
-            for(java.io.File file : files){
-                Path path = file.toPath();
-                try {
-                    BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
-                    System.out.println(attr.creationTime());
-
-                    if(file.isDirectory()){
-                        Folder folder = new Folder(path, attr);
-                        folder.setChildren(traverseFolder(folder));
-                        currentFolder.addChild(folder);
-                    }else{
-                        currentFolder.addChild(new File(path, attr));
-                    }
-                } catch (IOException ex) {
-                    Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }else{
-            System.out.println("No Selection");
-        }
-
-        updateGUI();
+        
     }//GEN-LAST:event_addElementToCompressBtnActionPerformed
 
     private void navigationTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_navigationTextFieldActionPerformed
@@ -396,10 +359,7 @@ public class GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_navigationTextFieldActionPerformed
 
     private void backButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backButtonActionPerformed
-        if(stack.size() > 1){
-            stack.pop();
-            updateGUI();
-        }
+        
     }//GEN-LAST:event_backButtonActionPerformed
 
     public JRootPane getRootPane() {
@@ -416,29 +376,8 @@ public class GUI extends javax.swing.JFrame {
     public AccessibleContext getAccessibleContext() {
         return accessibleContext;
     }
-    
-    public ArrayList<HierarchyInterface> traverseFolder(Folder folder){
-        java.io.File subFiles[] = folder.getPath().toFile().listFiles();
-        ArrayList<HierarchyInterface> returnList = new ArrayList<HierarchyInterface>();
-        try{
-            for(java.io.File subFile : subFiles){
-                Path subPath = subFile.toPath();
-                BasicFileAttributes attr = Files.readAttributes(subPath, BasicFileAttributes.class);
-                if(subFile.isDirectory()){
-                    Folder subFolder = new Folder(subFile.toPath(), attr);
-                    subFolder.setChildren(traverseFolder(subFolder));
-                    returnList.add(subFolder);
-                }else{
-                    returnList.add(new File(subFile.toPath(), attr));
-                }
-            }
-        }catch(IOException e){
-            e.printStackTrace();
-        };
-        return returnList;
-    }
-    
 
+ 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton CompressBtn;
     private javax.swing.JButton addElementToCompressBtn;

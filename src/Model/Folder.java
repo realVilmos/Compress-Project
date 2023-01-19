@@ -1,4 +1,4 @@
-package javaapplication1;
+package Model;
 
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;

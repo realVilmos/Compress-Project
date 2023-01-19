@@ -1,14 +1,20 @@
 package javaapplication1;
+import Model.Services.GUIController;
+import Model.Services.HierarchyService;
 import com.formdev.flatlaf.FlatLightLaf;
 public class CompressorMain {
 
     public static void main(String[] args) {
-        FlatLightLaf.setup();
-        GUI t = new GUI();
-        t.setTitle("Tömörítő program");
-        t.pack();
-        t.setSize(700, 405);
-        t.setVisible(true);
+        
+        GUI view = new GUI();
+        HierarchyService service = new HierarchyService();
+        GUIController controller = new GUIController(view, service);
+        
+        view.setTitle("Tömörítő program");
+        view.pack();
+        view.setSize(700, 405);
+        view.setVisible(true);
+        
     }
     
 }

@@ -1,4 +1,4 @@
-package javaapplication1.Table;
+package Model;
 
 import java.awt.Component;
 import javax.swing.JTable;
