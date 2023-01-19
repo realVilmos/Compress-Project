@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javaapplication1.GUI;
+import CompressionProject.GUI;
 
 public class HierarchyService {
     

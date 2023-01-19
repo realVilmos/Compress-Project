@@ -1,4 +1,4 @@
-package javaapplication1;
+package CompressionProject;
 import Model.Services.GUIController;
 import Model.Services.HierarchyService;
 import com.formdev.flatlaf.FlatLightLaf;

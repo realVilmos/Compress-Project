@@ -1,4 +1,4 @@
-package javaapplication1;
+package CompressionProject;
 import Model.IconTextRenderer;
 import java.awt.event.MouseAdapter;
 import com.formdev.flatlaf.FlatLightLaf;
@@ -219,7 +219,7 @@ public class GUI extends javax.swing.JFrame {
             );
             jPanel1Layout.setVerticalGroup(
                 jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, 336, Short.MAX_VALUE)
+                .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, 336, Short.MAX_VALUE)
             );
 
             jTabbedPane2.addTab("Tömörítés", jPanel1);

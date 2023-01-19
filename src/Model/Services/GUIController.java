@@ -9,7 +9,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Stack;
-import javaapplication1.GUI;
+import CompressionProject.GUI;
 import javax.swing.JTable;
 
 public class GUIController {
