@@ -52,8 +52,16 @@ public class GUI extends javax.swing.JFrame {
         backButton.addActionListener(actionListener);
     }
     
+    public void addNavigationTextFieldListener(ActionListener actionListener){
+        navigationTextField.addActionListener(actionListener);
+    }
+    
     public void setNavigationTextField(String text){
         navigationTextField.setText(text);
+    }
+    
+    public String getNavigationTextFieldValue(){
+        return navigationTextField.getText();
     }
     
     public int[] getSelectedTableRows(){
@@ -97,51 +105,26 @@ public class GUI extends javax.swing.JFrame {
 
         backButton.setForeground(java.awt.SystemColor.window);
         backButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/arrow-left.png"))); // NOI18N
-        backButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                backButtonActionPerformed(evt);
-            }
-        });
 
         navigationTextField.setText("\\");
-            navigationTextField.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    navigationTextFieldActionPerformed(evt);
-                }
-            });
 
             addElementToCompressBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/package-variant-plus(1).png"))); // NOI18N
             addElementToCompressBtn.setText("<html>Fájl/Mappa<br>hozzáadása");
             addElementToCompressBtn.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
             addElementToCompressBtn.setVerifyInputWhenFocusTarget(false);
             addElementToCompressBtn.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-            addElementToCompressBtn.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    addElementToCompressBtnActionPerformed(evt);
-                }
-            });
 
             removeElementToCompressBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/package-variant-minus.png"))); // NOI18N
             removeElementToCompressBtn.setText("<html>Fájl/Mappa<br>eltávolítása");
             removeElementToCompressBtn.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
             removeElementToCompressBtn.setVerifyInputWhenFocusTarget(false);
             removeElementToCompressBtn.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-            removeElementToCompressBtn.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    removeElementToCompressBtnActionPerformed(evt);
-                }
-            });
 
             CompressBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/package-variant-closed.png"))); // NOI18N
             CompressBtn.setText("Tömörítés");
             CompressBtn.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
             CompressBtn.setVerifyInputWhenFocusTarget(false);
             CompressBtn.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-            CompressBtn.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    CompressBtnActionPerformed(evt);
-                }
-            });
 
             toCompressTable.setModel(new javax.swing.table.DefaultTableModel(
                 new Object [][] {
@@ -219,7 +202,7 @@ public class GUI extends javax.swing.JFrame {
             );
             jPanel1Layout.setVerticalGroup(
                 jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, 336, Short.MAX_VALUE)
+                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, 336, Short.MAX_VALUE)
             );
 
             jTabbedPane2.addTab("Tömörítés", jPanel1);
@@ -341,26 +324,6 @@ public class GUI extends javax.swing.JFrame {
     private void chooseCompressedFileBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chooseCompressedFileBtnActionPerformed
         
     }//GEN-LAST:event_chooseCompressedFileBtnActionPerformed
-
-    private void removeElementToCompressBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeElementToCompressBtnActionPerformed
-        
-    }//GEN-LAST:event_removeElementToCompressBtnActionPerformed
-
-    private void CompressBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CompressBtnActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_CompressBtnActionPerformed
-
-    private void addElementToCompressBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addElementToCompressBtnActionPerformed
-        
-    }//GEN-LAST:event_addElementToCompressBtnActionPerformed
-
-    private void navigationTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_navigationTextFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_navigationTextFieldActionPerformed
-
-    private void backButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backButtonActionPerformed
-        
-    }//GEN-LAST:event_backButtonActionPerformed
 
     public JRootPane getRootPane() {
         return rootPane;

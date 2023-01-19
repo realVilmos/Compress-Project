@@ -102,17 +102,11 @@
                       <Image iconType="3" name="/icons/arrow-left.png"/>
                     </Property>
                   </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="backButtonActionPerformed"/>
-                  </Events>
                 </Component>
                 <Component class="javax.swing.JTextField" name="navigationTextField">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="\u005c" containsInvalidXMLChars="true"/>
                   </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="navigationTextFieldActionPerformed"/>
-                  </Events>
                 </Component>
                 <Container class="javax.swing.JPanel" name="jPanel4">
 
@@ -164,9 +158,6 @@
                         <Property name="verifyInputWhenFocusTarget" type="boolean" value="false"/>
                         <Property name="verticalTextPosition" type="int" value="3"/>
                       </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="addElementToCompressBtnActionPerformed"/>
-                      </Events>
                     </Component>
                     <Component class="javax.swing.JButton" name="removeElementToCompressBtn">
                       <Properties>
@@ -178,9 +169,6 @@
                         <Property name="verifyInputWhenFocusTarget" type="boolean" value="false"/>
                         <Property name="verticalTextPosition" type="int" value="3"/>
                       </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="removeElementToCompressBtnActionPerformed"/>
-                      </Events>
                     </Component>
                     <Component class="javax.swing.JButton" name="CompressBtn">
                       <Properties>
@@ -192,9 +180,6 @@
                         <Property name="verifyInputWhenFocusTarget" type="boolean" value="false"/>
                         <Property name="verticalTextPosition" type="int" value="3"/>
                       </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="CompressBtnActionPerformed"/>
-                      </Events>
                     </Component>
                     <Container class="javax.swing.JScrollPane" name="jScrollPane1">
                       <AuxValues>

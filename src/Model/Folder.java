@@ -56,8 +56,13 @@ public class Folder implements HierarchyInterface{
         this.attr = attr;
     }
     
-    
-    
-    
+    public HierarchyInterface getChildByName(String name){
+        for(HierarchyInterface child: this.children){
+            if(child instanceof File) continue;
+            String folderName = ((Folder)child).getPath().getFileName().toString();
+            if(folderName.equals(name)) return child;
+        }
+        return null;
+    }
     
 }

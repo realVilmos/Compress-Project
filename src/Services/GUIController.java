@@ -10,6 +10,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Stack;
 import CompressionProject.GUI;
+import Model.File;
+import java.awt.Desktop;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JTable;
 
 public class GUIController {
@@ -35,8 +40,9 @@ public class GUIController {
         this.gui.addBackButtonListener(new backButtonListener());
         this.gui.addPlusButtonListener(new plusButtonListener());
         this.gui.addMinusButtonListener(new minusButtonListener());
+        this.gui.addNavigationTextFieldListener(new navigationTextFieldListener());
     }
-    
+
     class selectedRowListener extends MouseAdapter {
         @Override
         public void mousePressed(MouseEvent mouseEvent){
@@ -49,7 +55,14 @@ public class GUIController {
                     stack.push((Folder)choosenElem);
                     updateGUI();
                 }else{
-                    //Meg kell nyitni a fájlt
+                    Desktop desktop = Desktop.getDesktop();
+                    java.io.File file = ((File)choosenElem).getPath().toFile();
+                    if(file.exists()) try {
+                        desktop.open(file);
+                    } catch (IOException ex) {
+                        gui.displayErrorMessage("Hiba történt a fájl megnyitása közben.");
+                        Logger.getLogger(GUIController.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
             }
         }
@@ -83,6 +96,35 @@ public class GUIController {
             }
             updateGUI();
         } 
+    }
+    
+    class navigationTextFieldListener implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            while(stack.size() > 1){
+                stack.pop();
+            }
+            
+            String navigationPath = gui.getNavigationTextFieldValue();
+            if(navigationPath.charAt(0) != '\\') navigationPath = "\\" + navigationPath;
+            
+            String folders[] = navigationPath.split("\\\\");
+            
+            for(int i = 1; i < folders.length; i++){
+                System.out.println(i + ": " + folders[i]);
+                Folder parentFolder = stack.peek();
+                
+                Folder childFolder = (Folder)(parentFolder.getChildByName(folders[i]));
+                if(childFolder == null){
+                    gui.displayErrorMessage("Nem található az útvonal");
+                    return;
+                }
+                
+                stack.push(childFolder);
+            }
+            
+            updateGUI();
+        }
     }
     
     private void updateGUI(){
