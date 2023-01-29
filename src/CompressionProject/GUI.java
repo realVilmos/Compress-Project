@@ -15,6 +15,7 @@ public class GUI extends javax.swing.JFrame {
         FlatLightLaf.setup();
         initComponents();
         deCompressBtn.setVisible(false); 
+        toCompressTable.setRowHeight(24);
     }
     
     public java.io.File[] getSelectedFilesFromDialog(){

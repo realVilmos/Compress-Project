@@ -11,8 +11,12 @@ import java.awt.event.MouseEvent;
 import java.util.Stack;
 import CompressionProject.GUI;
 import Model.File;
+import Model.FileFolderNameComperator;
 import java.awt.Desktop;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JTable;
@@ -128,7 +132,9 @@ public class GUIController {
     }
     
     private void updateGUI(){
-        model.setElements(stack.peek().getChildren());
+        ArrayList<HierarchyInterface> children = stack.peek().getChildren();
+        Collections.sort(children, new FileFolderNameComperator());
+        model.setElements(children);
         String path = "";
         
         for(Folder elem : stack){

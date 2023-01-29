@@ -12,6 +12,7 @@ import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import CompressionProject.GUI;
+import static java.util.Arrays.sort;
 
 public class HierarchyService {
     

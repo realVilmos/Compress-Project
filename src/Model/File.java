@@ -33,6 +33,8 @@ public class File implements HierarchyInterface{
         this.attr = attr;
     }
     
-    
+    public String getName(){
+        return this.path.getFileName().toString();
+    }
     
 }

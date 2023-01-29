@@ -65,4 +65,8 @@ public class Folder implements HierarchyInterface{
         return null;
     }
     
+    public String getName(){
+        return this.path.getFileName().toString();
+    }
+    
 }
