@@ -3,6 +3,7 @@ package Model;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class Folder implements HierarchyInterface{
     private Path path;
@@ -40,6 +41,7 @@ public class Folder implements HierarchyInterface{
         this.children = children;
     }
 
+    @Override
     public FolderHeader getHeader() {
         return header;
     }
@@ -56,10 +58,10 @@ public class Folder implements HierarchyInterface{
         this.attr = attr;
     }
     
-    public HierarchyInterface getChildByName(String name){
+    public HierarchyInterface getFolderByName(String name){
         for(HierarchyInterface child: this.children){
             if(child instanceof File) continue;
-            String folderName = ((Folder)child).getPath().getFileName().toString();
+            String folderName = child.getName();
             if(folderName.equals(name)) return child;
         }
         return null;
@@ -67,6 +69,16 @@ public class Folder implements HierarchyInterface{
     
     public String getName(){
         return this.path.getFileName().toString();
+    }
+
+    @Override
+    public Date getCreationDate() {
+        return new Date(this.attr.creationTime().toMillis());
+    }
+
+    @Override
+    public Date getLastModifiedDate() {
+        return new Date(this.attr.lastModifiedTime().toMillis());
     }
     
 }

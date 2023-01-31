@@ -35,19 +35,19 @@ public class TableModel extends AbstractTableModel{
         switch(columnIndex) {
             case 0: {
                 ImageIcon icon = (elem instanceof Folder) ? new ImageIcon("src/icons/folder.png") : new ImageIcon("src/icons/file.png");
-                String filename = (elem instanceof Folder) ? ((Folder)elem).getPath().getFileName().toString() : ((File)elem).getPath().getFileName().toString();
+                String filename = elem.getName();
                 return new IconTextItem(filename, icon);
             }
             case 1:{
                 String pattern = "yyyy. MM. dd  HH:mm:ss";
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
-                Date date = new Date((elem instanceof Folder) ? ((Folder)elem).getAttr().creationTime().toMillis() : ((File)elem).getAttr().creationTime().toMillis());
+                Date date = elem.getCreationDate();
                 return simpleDateFormat.format(date.getTime());
             }
             case 2:{
                 String pattern = "yyyy. MM. dd  HH:mm:ss";
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
-                Date date = new Date((elem instanceof Folder) ? ((Folder)elem).getAttr().lastModifiedTime().toMillis() : ((File)elem).getAttr().lastModifiedTime().toMillis());
+                Date date = elem.getLastModifiedDate();
                 return simpleDateFormat.format(date.getTime());
             }
         }

@@ -16,6 +16,10 @@ public class FileHeader extends FolderHeader{
     public void setDistanceFromHeader(long distanceFromHeader) {
         this.distanceFromHeader = distanceFromHeader;
     }
+    
+    public void addDistanceFromHeader(long distanceFromHeader){
+        this.distanceFromHeader += distanceFromHeader;
+    }
 
     public long getFileSize() {
         return fileSize;
@@ -74,7 +78,7 @@ public class FileHeader extends FolderHeader{
     }
     
     public FileHeader(){
-        
+        this.distanceFromHeader = 0;
     }
     
     

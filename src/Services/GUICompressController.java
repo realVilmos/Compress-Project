@@ -16,38 +16,38 @@ import java.awt.Desktop;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JTable;
 
-public class GUIController {
+public class GUICompressController {
     
     private GUI gui;
-    private HierarchyService service;
-    private TableModel model;
+    private HierarchyService hierarchyService;
+    private TableModel compressModel;
     private Stack<Folder> stack;
     
-    public GUIController(GUI gui, HierarchyService service){
+    public GUICompressController(GUI gui, HierarchyService service){
         this.gui = gui;
-        this.service = service;
-        this.model = new TableModel();
+        this.hierarchyService = service;
+        this.compressModel = new TableModel();
         this.stack = new Stack<>();
         
         stack.push(new Folder(null, null));
         
-        gui.setTableModel(model);
+        gui.setCompressTableModel(compressModel);
         gui.setTableColumnModel(0, new IconTextRenderer());
-        model.setElements(stack.peek().getChildren());
+        compressModel.setElements(stack.peek().getChildren());
         
-        this.gui.addTableMouseListener(new selectedRowListener());
-        this.gui.addBackButtonListener(new backButtonListener());
-        this.gui.addPlusButtonListener(new plusButtonListener());
-        this.gui.addMinusButtonListener(new minusButtonListener());
-        this.gui.addNavigationTextFieldListener(new navigationTextFieldListener());
+        this.gui.addTableMouseListener(new SelectedRowListener());
+        this.gui.addBackButtonListener(new BackButtonListener());
+        this.gui.addPlusButtonListener(new PlusButtonListener());
+        this.gui.addMinusButtonListener(new MinusButtonListener());
+        this.gui.addNavigationTextFieldListener(new NavigationTextFieldListener());
+        this.gui.addCompressButtonListener(new CompressButtonListener());
     }
 
-    class selectedRowListener extends MouseAdapter {
+    class SelectedRowListener extends MouseAdapter {
         @Override
         public void mousePressed(MouseEvent mouseEvent){
             JTable table = (JTable) mouseEvent.getSource();
@@ -65,14 +65,14 @@ public class GUIController {
                         desktop.open(file);
                     } catch (IOException ex) {
                         gui.displayErrorMessage("Hiba történt a fájl megnyitása közben.");
-                        Logger.getLogger(GUIController.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(GUICompressController.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             }
         }
     }
     
-    class backButtonListener implements ActionListener {
+    class BackButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             if(stack.size() > 1){
@@ -82,19 +82,19 @@ public class GUIController {
         }
     }
     
-    class plusButtonListener implements ActionListener{
+    class PlusButtonListener implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e) {
             java.io.File files[] = gui.getSelectedFilesFromDialog();
-            service.addElementsToFolder(stack.peek(), files);
+            hierarchyService.addElementsToFolder(stack.peek(), files);
             updateGUI();
         }
     }
     
-    class minusButtonListener implements ActionListener{
+    class MinusButtonListener implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e) {
-            int[] selectedRows = gui.getSelectedTableRows();
+            int[] selectedRows = gui.getSelectedCompressTableRows();
             for(int i = selectedRows.length-1; i >= 0; i--){
                 stack.peek().removeChild(selectedRows[i]);
             }
@@ -102,14 +102,14 @@ public class GUIController {
         } 
     }
     
-    class navigationTextFieldListener implements ActionListener{
+    class NavigationTextFieldListener implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e) {
             while(stack.size() > 1){
                 stack.pop();
             }
             
-            String navigationPath = gui.getNavigationTextFieldValue();
+            String navigationPath = gui.getCompressNavigationTextFieldValue();
             if(navigationPath.charAt(0) != '\\') navigationPath = "\\" + navigationPath;
             
             String folders[] = navigationPath.split("\\\\");
@@ -118,7 +118,7 @@ public class GUIController {
                 System.out.println(i + ": " + folders[i]);
                 Folder parentFolder = stack.peek();
                 
-                Folder childFolder = (Folder)(parentFolder.getChildByName(folders[i]));
+                Folder childFolder = (Folder)(parentFolder.getFolderByName(folders[i]));
                 if(childFolder == null){
                     gui.displayErrorMessage("Nem található az útvonal");
                     return;
@@ -131,10 +131,26 @@ public class GUIController {
         }
     }
     
+    class CompressButtonListener implements ActionListener{
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(stack.peek().getChildren().size() > 0){
+                
+                
+                CompressService compressService = new HuffmanCompressService(stack.elementAt(0));
+                compressService.compress();
+            }else{
+                gui.displayErrorMessage("Kérem adjon hozzá fájlokat");
+            }
+        }
+        
+    }
+    
     private void updateGUI(){
         ArrayList<HierarchyInterface> children = stack.peek().getChildren();
         Collections.sort(children, new FileFolderNameComperator());
-        model.setElements(children);
+        compressModel.setElements(children);
         String path = "";
         
         for(Folder elem : stack){
@@ -145,7 +161,7 @@ public class GUIController {
             }
         }
         
-        gui.setTableModel(model);
-        gui.setNavigationTextField(path); 
+        gui.setCompressTableModel(compressModel);
+        gui.setCompressNavigationTextField(path); 
     } 
 }

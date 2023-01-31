@@ -8,11 +8,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import CompressionProject.GUI;
-import static java.util.Arrays.sort;
 
 public class HierarchyService {
     

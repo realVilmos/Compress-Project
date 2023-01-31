@@ -14,7 +14,6 @@ public class GUI extends javax.swing.JFrame {
     public GUI() {
         FlatLightLaf.setup();
         initComponents();
-        deCompressBtn.setVisible(false); 
         toCompressTable.setRowHeight(24);
     }
     
@@ -33,7 +32,8 @@ public class GUI extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(this, errorMessage);
     }
     
-    public void setTableModel(AbstractTableModel tableModel){
+    //Tömörítés fül
+    public void setCompressTableModel(AbstractTableModel tableModel){
         toCompressTable.setModel(tableModel);
     }
     
@@ -57,21 +57,37 @@ public class GUI extends javax.swing.JFrame {
         navigationTextField.addActionListener(actionListener);
     }
     
-    public void setNavigationTextField(String text){
+    public void addCompressButtonListener(ActionListener actionListener){
+        compressBtn.addActionListener(actionListener);
+    }
+    
+    public void setCompressNavigationTextField(String text){
         navigationTextField.setText(text);
     }
     
-    public String getNavigationTextFieldValue(){
+    public String getCompressNavigationTextFieldValue(){
         return navigationTextField.getText();
     }
     
-    public int[] getSelectedTableRows(){
+    public int[] getSelectedCompressTableRows(){
         return toCompressTable.getSelectedRows();
     }
     
     public void setTableColumnModel(int columnIndex, DefaultTableCellRenderer renderer){
         toCompressTable.getColumnModel().getColumn(columnIndex).setCellRenderer(renderer);
+        deCompressTable.getColumnModel().getColumn(columnIndex).setCellRenderer(renderer);
     }
+    
+    //Kibontás fül
+    
+    public void setdeCompressTableModel(AbstractTableModel tableModel){
+        deCompressTable.setModel(tableModel);
+    }
+    
+    public void addDeCompressButtonListener(ActionListener actionListener){
+        deCompressBtn.addActionListener(actionListener);
+    }
+    
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -90,7 +106,7 @@ public class GUI extends javax.swing.JFrame {
         jPanel4 = new javax.swing.JPanel();
         addElementToCompressBtn = new javax.swing.JButton();
         removeElementToCompressBtn = new javax.swing.JButton();
-        CompressBtn = new javax.swing.JButton();
+        compressBtn = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         toCompressTable = new javax.swing.JTable();
         jPanel2 = new javax.swing.JPanel();
@@ -121,11 +137,11 @@ public class GUI extends javax.swing.JFrame {
             removeElementToCompressBtn.setVerifyInputWhenFocusTarget(false);
             removeElementToCompressBtn.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
 
-            CompressBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/package-variant-closed.png"))); // NOI18N
-            CompressBtn.setText("Tömörítés");
-            CompressBtn.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-            CompressBtn.setVerifyInputWhenFocusTarget(false);
-            CompressBtn.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+            compressBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/package-variant-closed.png"))); // NOI18N
+            compressBtn.setText("Tömörítés");
+            compressBtn.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+            compressBtn.setVerifyInputWhenFocusTarget(false);
+            compressBtn.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
 
             toCompressTable.setModel(new javax.swing.table.DefaultTableModel(
                 new Object [][] {
@@ -148,7 +164,7 @@ public class GUI extends javax.swing.JFrame {
                 .addGroup(jPanel4Layout.createSequentialGroup()
                     .addContainerGap()
                     .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(CompressBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(compressBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(addElementToCompressBtn, javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(removeElementToCompressBtn)))
@@ -167,7 +183,7 @@ public class GUI extends javax.swing.JFrame {
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addComponent(removeElementToCompressBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(CompressBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(compressBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addContainerGap(51, Short.MAX_VALUE))
             );
 
@@ -213,22 +229,12 @@ public class GUI extends javax.swing.JFrame {
             deCompressBtn.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
             deCompressBtn.setVerifyInputWhenFocusTarget(false);
             deCompressBtn.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-            deCompressBtn.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    deCompressBtnActionPerformed(evt);
-                }
-            });
 
             chooseCompressedFileBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/package-variant-closed.png"))); // NOI18N
             chooseCompressedFileBtn.setText("<html><center>Kibontandó fájl <br>kiválasztása");
             chooseCompressedFileBtn.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
             chooseCompressedFileBtn.setVerifyInputWhenFocusTarget(false);
             chooseCompressedFileBtn.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-            chooseCompressedFileBtn.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    chooseCompressedFileBtnActionPerformed(evt);
-                }
-            });
 
             javax.swing.GroupLayout chooseFilePanelLayout = new javax.swing.GroupLayout(chooseFilePanel);
             chooseFilePanel.setLayout(chooseFilePanelLayout);
@@ -318,14 +324,6 @@ public class GUI extends javax.swing.JFrame {
             pack();
         }// </editor-fold>//GEN-END:initComponents
 
-    private void deCompressBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deCompressBtnActionPerformed
-        
-    }//GEN-LAST:event_deCompressBtnActionPerformed
-
-    private void chooseCompressedFileBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chooseCompressedFileBtnActionPerformed
-        
-    }//GEN-LAST:event_chooseCompressedFileBtnActionPerformed
-
     public JRootPane getRootPane() {
         return rootPane;
     }
@@ -343,11 +341,11 @@ public class GUI extends javax.swing.JFrame {
 
  
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton CompressBtn;
     private javax.swing.JButton addElementToCompressBtn;
     private javax.swing.JButton backButton;
     private javax.swing.JButton chooseCompressedFileBtn;
     private javax.swing.JPanel chooseFilePanel;
+    private javax.swing.JButton compressBtn;
     private javax.swing.JButton deCompressBtn;
     private javax.swing.JTable deCompressTable;
     private javax.swing.JLabel jLabel1;
