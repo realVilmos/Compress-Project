@@ -13,6 +13,8 @@ public abstract class CompressService {
     
     //Mivel a header megoldások bármely jővőbeli tömörítési eljárásban ugyanazon az elven működnének, itt definiálom őket.
     
+    //Még kell: Hierarchia ábrázolás a végére
+    
     private int id = 0;
     private ArrayList<FolderHeader> definedHeaders = new ArrayList<>();
     private Folder rootFolder;
@@ -26,6 +28,11 @@ public abstract class CompressService {
  
         try {
             PrintWriter pw = new PrintWriter("Compressed.txt");
+            //Verziószám?
+            
+            //Legelejére ha valami kell a tömörítéshez pl ide Huffman Fa
+            writeToFileBegin(pw);
+            
             compressElementsInFolder(this.rootFolder, pw);
             
             //ide jöhet a 6 bájtos elválasztó "pecsét"
@@ -37,7 +44,7 @@ public abstract class CompressService {
             writeHeaders(pw);
             
             //Hierarchia ábrázolása stringben, ezt esetleg lehet kombinálni a writeHeaderrel hogy közbe történjen
-            
+
             pw.flush();
             pw.close();
         } catch (FileNotFoundException ex) {
@@ -51,6 +58,10 @@ public abstract class CompressService {
             header.setId(generateId());
             header.setNameAndExtension(Elem.getName());
             header.setCreationDate(Elem.getCreationDate());
+            
+            if(header instanceof FileHeader fileHeader){
+                fileHeader.setModificationDate(Elem.getLastModifiedDate());
+            }
             
             Elem.setHeader(header);
             
@@ -151,8 +162,6 @@ public abstract class CompressService {
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(definedHeaders.get(i).getCreationDate());
                 bytesUsedForHeader += writeSizeAndBinaryToFile(calendar.get(Calendar.SECOND), pw);
-                
-                writeHeaders(pw);
             }
             
             //Header távolság hozzáadása a következő headerökhöz
@@ -193,7 +202,9 @@ public abstract class CompressService {
         
         return s.length;
     }
-    
-    
+
+    protected void writeToFileBegin(PrintWriter pw) {
+        
+    }
     
 }

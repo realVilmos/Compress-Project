@@ -81,6 +81,11 @@ public class HuffmanCompressService extends CompressService {
         return new long[]{junkbits, length};
     }
     
+    @Override
+    protected void writeToFileBegin(PrintWriter pw){
+        pw.write(this.huffman.getStringHuffmanTree() + "0");
+    }
+    
     //Ez valószínűleg túl drága 
     private void getAllCharacterFrequencies(Folder folder, Map<Character, Integer> characterFrequencies){
         for(HierarchyInterface Elem : folder.getChildren()){

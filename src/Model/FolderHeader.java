@@ -69,8 +69,6 @@ public class FolderHeader {
             }
         }
         
-        System.out.println(indicatedBinaryString);
-        
         return indicatedBinaryString;
     }
     

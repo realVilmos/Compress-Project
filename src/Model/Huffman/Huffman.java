@@ -9,34 +9,42 @@ public class Huffman {
     private Map<Character, Integer> characterFrequencies;
     private Map<Character, String> huffmanCodes;
     private Node huffmanTreeRoot;
+    private String huffmanStringTree;
     
     public Huffman(Map<Character, Integer> characterFrequencies){
         this.characterFrequencies = characterFrequencies;
         this.huffmanCodes = new HashMap<>();
+        this.huffmanStringTree = "";
         generateHuffmanTree();
+        
+    }
+    
+    public String getStringHuffmanTree(){
+        return this.huffmanStringTree;
     }
     
     private void generateHuffmanTree(){
         Queue<Node> queue = new PriorityQueue<Node>(new NodeComparator());
-        characterFrequencies.forEach((character, frequency) -> {
+        this.characterFrequencies.forEach((character, frequency) -> {
             queue.add(new Leaf(character, frequency));
         });
         
         while(queue.size() > 1){
             queue.add(new Node(queue.poll(), queue.poll()));
         }
-        
-        generateHuffmanCodes(queue.poll(), "");
+        this.huffmanTreeRoot = queue.poll();
+        generateHuffmanCodes(this.huffmanTreeRoot, "");
     }
     
     private void generateHuffmanCodes(Node node, String code){
-        if(node instanceof Leaf){
-            Leaf leaf = (Leaf)node;
-            huffmanCodes.put(leaf.getCharacter(), code);
+        if(node instanceof Leaf leafnode){
+            this.huffmanCodes.put(leafnode.getCharacter(), code);
+            this.huffmanStringTree += ("1" + leafnode.getCharacter());
             return;
         }
         generateHuffmanCodes(node.getLeftChild(), code.concat("0"));
         generateHuffmanCodes(node.getRightChild(), code.concat("1"));
+        this.huffmanStringTree += "0";
     }
     
     private void reconstructTree(){
@@ -46,7 +54,7 @@ public class Huffman {
     public String encode(String s){
         StringBuilder sb = new StringBuilder();
         for(char character : s.toCharArray()){
-            sb.append(huffmanCodes.get(character));
+            sb.append(this.huffmanCodes.get(character));
         }
         return sb.toString();
     }
