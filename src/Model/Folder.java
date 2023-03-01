@@ -17,6 +17,10 @@ public class Folder implements HierarchyInterface{
         this.attr = attr;
     }
     
+    public Folder(){
+        
+    }
+    
     public void addChild(HierarchyInterface elem){
         children.add(elem);
     }

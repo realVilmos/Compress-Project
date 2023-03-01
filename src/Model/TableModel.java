@@ -8,13 +8,13 @@ import javax.swing.ImageIcon;
 import javax.swing.table.AbstractTableModel;
 
 public class TableModel extends AbstractTableModel{
-    
+
     private List<HierarchyInterface> elements;
-    
+
     public TableModel(){
         this.elements = new ArrayList();
     }
-    
+
     public TableModel(ArrayList<HierarchyInterface> elements){
         this.elements = elements;
     }
@@ -53,7 +53,7 @@ public class TableModel extends AbstractTableModel{
         }
         return null;
     }
-    
+
     @Override
     public String getColumnName(int column) {
         switch (column) {
@@ -63,7 +63,7 @@ public class TableModel extends AbstractTableModel{
         }
         return null;
     }
-    
+
     @Override
     public Class<?> getColumnClass(int columnIndex) {
         switch (columnIndex) {
@@ -73,14 +73,14 @@ public class TableModel extends AbstractTableModel{
         }
         return Object.class;
     }
-    
+
     public void setElements(ArrayList<HierarchyInterface> elements){
         this.elements = elements;
         fireTableDataChanged();
     }
-    
-    
-    
-    
-    
+
+
+
+
+
 }

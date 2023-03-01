@@ -13,6 +13,10 @@ public class File implements HierarchyInterface{
         this.path = path;
         this.attr = attr;
     }
+    
+    public File(){
+        
+    }
 
     public Path getPath() {
         return path;
@@ -53,5 +57,4 @@ public class File implements HierarchyInterface{
     public Date getLastModifiedDate() {
         return new Date(this.attr.lastModifiedTime().toMillis());
     }
-    
 }

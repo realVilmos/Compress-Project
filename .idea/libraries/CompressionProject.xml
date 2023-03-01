@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="CompressionProject">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/dist/CompressionProject.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -71,16 +71,4 @@ public class FolderHeader {
         
         return indicatedBinaryString;
     }
-    
-    public void setIdFromBinaryIndicatedString(String binaryIndicatedString){
-        String binaryString = "";
-        
-        String s[] = binaryIndicatedString.split("(?<=\\G.{8})");
-        
-        for(int i = 0; i < s.length; i++){
-            binaryString += s[i].substring(1, 8);
-        }
-
-        this.id = Integer.parseInt(binaryString, 2);
-    }
 }

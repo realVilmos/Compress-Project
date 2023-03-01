@@ -3,8 +3,9 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/kecsk/OneDrive/Documents/NetBeansProjects/CompressionProject/src/Model/FolderHeader.java</file>
+            <file>file:/C:/Users/kecsk/OneDrive/Documents/NetBeansProjects/CompressionProject/src/Services/HuffmanDeCompressService.java</file>
             <file>file:/C:/Users/kecsk/OneDrive/Documents/NetBeansProjects/CompressionProject/src/Services/CompressService.java</file>
+            <file>file:/C:/Users/kecsk/OneDrive/Documents/NetBeansProjects/CompressionProject/src/Model/ReverseReader.java</file>
             <file>file:/C:/Users/kecsk/OneDrive/Documents/NetBeansProjects/CompressionProject/src/Services/HuffmanCompressService.java</file>
         </group>
     </open-files>
