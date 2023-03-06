@@ -80,6 +80,19 @@ public class Huffman {
         return this.huffmanCodes.get(c);
     }
 
+    public String decode(String binary){
+        Node currentNode = huffmanTreeRoot;
+        StringBuilder decoded = new StringBuilder();
+        for(char c : binary.toCharArray()){
+            currentNode = (c == '0') ? currentNode.getLeftChild() : currentNode.getRightChild();
+            if(currentNode instanceof Leaf){
+              decoded.append(((Leaf)currentNode).getCharacter());
+              currentNode = huffmanTreeRoot;
+            }
+        }
+        return decoded.toString();
+    }
+
 
 }
 

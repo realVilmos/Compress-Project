@@ -3,6 +3,7 @@ package Services;
 import Model.*;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -50,7 +51,7 @@ public abstract class DeCompressService {
         return root;
     }
 
-    protected void deCompress() throws IOException {
+    protected void deCompress(Folder folder, Path to) throws IOException {
 
     }
 
@@ -61,6 +62,7 @@ public abstract class DeCompressService {
 
         //ID OLVASÁS
         String idBinary = "";
+        long tempPos = contentCurrPos;
         //Ez nem fut le alapból ha nem 2 vagy több bájton tárolódik az ID
         while(contents[contentCurrPos] >= 128){
             idBinary += Integer.toBinaryString(contents[contentCurrPos]);
@@ -93,6 +95,7 @@ public abstract class DeCompressService {
         }
 
         if(header instanceof FileHeader fh){
+            fh.setPosFromFileEnd(contents.length - tempPos);
             //readNumber első értéke i, második az olvasott szám
             //Relatív távolság a fejléctől
             System.out.println("relatív távolság:");
@@ -206,7 +209,6 @@ public abstract class DeCompressService {
                                 }
                                 charPos++;
                             }
-
 
                             Folder folder = new Folder();
                             //Üres, ne nézzük a gyerekeit

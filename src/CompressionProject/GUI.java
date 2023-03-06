@@ -3,6 +3,8 @@ import Model.IconTextRenderer;
 import java.awt.event.MouseAdapter;
 import com.formdev.flatlaf.FlatLightLaf;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.nio.file.Path;
 import javax.accessibility.AccessibleContext;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -98,7 +100,7 @@ public class GUI extends javax.swing.JFrame {
     }
 
     public void addDeCompressButtonListener(ActionListener actionListener){
-        chooseCompressedFileBtn.addActionListener(actionListener);
+        deCompressBtn.addActionListener(actionListener);
     }
 
     public void addChooseCompressedFileBtnListener(ActionListener actionListener){
@@ -125,8 +127,19 @@ public class GUI extends javax.swing.JFrame {
         return deCompressTable.getSelectedRows();
     }
 
-
-
+    public Object[] chooseDirectory(){
+      JFileChooser chooser = new JFileChooser();
+      chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+      chooser.setDialogTitle("Kérem válasszon ki egy mappát ahova történik a kicsomagolás");
+      chooser.setAccessory(new CheckBoxAccessory());
+      CheckBoxAccessory cb = (CheckBoxAccessory)chooser.getAccessory();
+      boolean createNewFolder = cb.isBoxSelected();
+      File selectedDir = null;
+      if(chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
+        selectedDir = chooser.getSelectedFile();
+      }
+      return new Object[]{createNewFolder, selectedDir.toPath()};
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.

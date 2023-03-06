@@ -29,24 +29,27 @@ public class HuffmanCompressService extends CompressService {
     public void initialize(Folder folder){
         super.rootFolder = folder;
         this.characterFrequencies = new HashMap<>();
+        printCharacterFrequencies();
         getAllCharacterFrequencies(folder, characterFrequencies);
         this.huffman = new Huffman(characterFrequencies);
+
     }
 
     @Override
     protected long[] encodeAndWriteFile(File f, OutputStreamWriter outputStream){
-        //Visszaadja az utolsó bátban található szemét bitek számát
+        //Visszaadja az utolsó bájtban található szemét bitek számát
         byte junkbits = 0;
         long length = 0;
         try{
-            BufferedReader br = new BufferedReader(new FileReader(f.getPath().toFile(), StandardCharsets.UTF_8));
+            BufferedReader br = new BufferedReader(new FileReader(f.getPath().toFile(), StandardCharsets.ISO_8859_1));
 
             //Karakterenként huffmankódolás
 
             StringBuilder tempEncodedString = new StringBuilder();
             while(br.ready()){
                 char c = (char)br.read();
-                tempEncodedString.append(huffman.encodeChar(c));
+                String encoded = huffman.encodeChar(c);
+                tempEncodedString.append(encoded);
 
                 if(tempEncodedString.length() % 8 == 0){
                     String binaryByteStrings[] = tempEncodedString.toString().split(("(?<=\\G.{8})"));
@@ -63,6 +66,11 @@ public class HuffmanCompressService extends CompressService {
                 String binaryByteStrings[] = tempEncodedString.toString().split(("(?<=\\G.{8})"));
                 tempEncodedString.setLength(0);
                 for(String s : binaryByteStrings){
+                    while(s.length() < 8){
+                      s = s + "0";
+                    }
+                    System.out.println(s);
+                    System.out.println(Integer.parseInt(s, 2));
                     outputStream.write(Integer.parseInt(s, 2));
                     length++;
                 }
@@ -99,7 +107,7 @@ public class HuffmanCompressService extends CompressService {
             }else{
                 try{
                     File f = (File)Elem;
-                    BufferedReader br = new BufferedReader(new FileReader(f.getPath().toFile(), StandardCharsets.UTF_8));
+                    BufferedReader br = new BufferedReader(new FileReader(f.getPath().toFile(), StandardCharsets.ISO_8859_1));
 
                     while(br.ready()){
                         char c = (char)br.read();
@@ -113,6 +121,12 @@ public class HuffmanCompressService extends CompressService {
                 }
             }
         }
+    }
+
+    private void printCharacterFrequencies(){
+      for(char c : characterFrequencies.keySet()){
+        System.out.println(c + " - " + (int)c + ": " + characterFrequencies.get(c));
+      }
     }
 
   byte[] charToUTF8Bytes(char c) {

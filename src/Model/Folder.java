@@ -16,15 +16,15 @@ public class Folder implements HierarchyInterface{
         this.children = new ArrayList<HierarchyInterface>();
         this.attr = attr;
     }
-    
+
     public Folder(){
-        
+      this.children = new ArrayList<HierarchyInterface>();
     }
-    
+
     public void addChild(HierarchyInterface elem){
         children.add(elem);
     }
-    
+
     public void removeChild(int index){
         children.remove(index);
     }
@@ -61,7 +61,7 @@ public class Folder implements HierarchyInterface{
     public void setAttr(BasicFileAttributes attr) {
         this.attr = attr;
     }
-    
+
     public HierarchyInterface getFolderByName(String name){
         for(HierarchyInterface child: this.children){
             if(child instanceof File) continue;
@@ -70,7 +70,7 @@ public class Folder implements HierarchyInterface{
         }
         return null;
     }
-    
+
     public String getName(){
         return this.path.getFileName().toString();
     }
@@ -84,5 +84,5 @@ public class Folder implements HierarchyInterface{
     public Date getLastModifiedDate() {
         return new Date(this.attr.lastModifiedTime().toMillis());
     }
-    
+
 }

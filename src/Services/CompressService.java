@@ -55,14 +55,14 @@ public abstract class CompressService {
             //BVZ6BP: Bognár Vilmos Zsolt 6 Bájtos Pecsétje :)
             String signature = "BVZ6BP";
             outputStream.write(signature);
+            addDistanceToHeaders((long)signature.length());
 
             //Hierarchia ábrázolása stringben, ezt esetleg lehet kombinálni a writeHeaderrel hogy közbe történjen
             makeStringHierarchy(this.rootFolder);
             outputStream.write(hierarchy);
             outputStream.write(']');
+            addDistanceToHeaders((long)(hierarchy.length()+1));
 
-            addDistanceToHeaders((long)signature.length());
-            //valami makeHeader
             writeHeaders(outputStream);
 
             outputStream.flush();

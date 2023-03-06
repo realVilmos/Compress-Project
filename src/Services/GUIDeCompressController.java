@@ -1,5 +1,6 @@
 package Services;
 
+import CompressionProject.CheckBoxAccessory;
 import CompressionProject.GUI;
 import Model.DeCompressTableModel;
 import Model.Folder;
@@ -10,18 +11,22 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JTable;
+import javax.swing.*;
 
 public class GUIDeCompressController {
     private GUI gui;
     private DeCompressService deCompressService;
     private DeCompressTableModel deCompressModel;
     private Stack<Folder> stack;
+    private String deCompressFileName;
 
     public GUIDeCompressController(GUI gui, DeCompressService deCompressService){
         this.gui = gui;
@@ -46,8 +51,30 @@ public class GUIDeCompressController {
         @Override
         public void actionPerformed(ActionEvent e) {
           try {
-              gui.getDeCompressTableSelectedRows(); //Ezeket passolni
-              deCompressService.deCompress();
+              Object[] data = gui.chooseDirectory();
+              boolean createNewFolder = (boolean) data[0];
+              Path deCompressto = (Path)data[1];
+
+              if(createNewFolder){
+                File folder = new File(deCompressto.toString() + "/" + deCompressFileName);
+                folder.mkdir();
+                deCompressto = folder.toPath();
+              }
+
+              Folder toDeCompress = new Folder();
+              int[] selected = gui.getDeCompressTableSelectedRows();
+              ArrayList<HierarchyInterface> chlidren = stack.peek().getChildren();
+
+              if(selected.length > 0){
+                for(int row : selected){
+                  toDeCompress.addChild(chlidren.get(row));
+                }
+
+                deCompressService.deCompress(toDeCompress, deCompressto);
+              }else{
+                deCompressService.deCompress(stack.peek(), deCompressto);
+              }
+
           } catch (IOException ex) {
             throw new RuntimeException(ex);
           }
@@ -78,6 +105,7 @@ public class GUIDeCompressController {
         @Override
         public void actionPerformed(ActionEvent e) {
             java.io.File f = gui.getSelectedFileFromDialog();
+            deCompressFileName = f.getName();
             try {
                 Folder root = deCompressService.buildHierarchyModel(f);
 

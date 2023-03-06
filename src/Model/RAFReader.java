@@ -55,4 +55,24 @@ public class RAFReader {
     return c;
   }
 
+  public byte[] readBytes(long pos, long size){
+    byte[] bytes = new byte[(int)size];
+    try{
+      raf.seek(pos);
+      raf.readFully(bytes);
+    }catch(IOException e){
+      e.printStackTrace();
+    }
+    return bytes;
+  }
+
+  public long getFileSize(){
+    try{
+      return raf.length();
+    }catch(IOException e){
+      e.printStackTrace();
+    }
+    return 0;
+  }
+
 }
