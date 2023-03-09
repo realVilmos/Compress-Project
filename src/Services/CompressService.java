@@ -44,7 +44,7 @@ public abstract class CompressService {
         initializeHeaders(this.rootFolder);
 
         try {
-            OutputStreamWriter outputStream = new OutputStreamWriter(new FileOutputStream("Compressed.txt", true), StandardCharsets.ISO_8859_1);
+            DataOutputStream outputStream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream("Compressed.txt", true)));
 
             //Legelejére ha valami kell a tömörítéshez pl ide Huffman Fa
             writeToFileBegin(outputStream);
@@ -54,12 +54,12 @@ public abstract class CompressService {
             //ide jöhet a 6 bájtos elválasztó "pecsét"
             //BVZ6BP: Bognár Vilmos Zsolt 6 Bájtos Pecsétje :)
             String signature = "BVZ6BP";
-            outputStream.write(signature);
+            outputStream.writeBytes(signature);
             addDistanceToHeaders((long)signature.length());
 
             //Hierarchia ábrázolása stringben, ezt esetleg lehet kombinálni a writeHeaderrel hogy közbe történjen
             makeStringHierarchy(this.rootFolder);
-            outputStream.write(hierarchy);
+            outputStream.writeBytes(hierarchy);
             outputStream.write(']');
             addDistanceToHeaders((long)(hierarchy.length()+1));
 
@@ -89,7 +89,7 @@ public abstract class CompressService {
         }
     }
 
-    protected void compressElementsInFolder(Folder folder, OutputStreamWriter outputStream){
+    protected void compressElementsInFolder(Folder folder, DataOutputStream outputStream){
         for(HierarchyInterface Elem : folder.getChildren()){
            if(Elem instanceof Folder){
                 compressElementsInFolder((Folder)Elem, outputStream);
@@ -112,7 +112,7 @@ public abstract class CompressService {
 
     }
 
-    protected long[] encodeAndWriteFile(File f, OutputStreamWriter outputStream){
+    protected long[] encodeAndWriteFile(File f, DataOutputStream outputStream){
         //Ez a külön szedett tömörítési eljárásban definiálandó
         //Az első elem a szemét bitek száma, a második a fájl mérete
         return new long[]{0, 0};
@@ -136,7 +136,7 @@ public abstract class CompressService {
     }
 
     //Defined header-ön kéne végig loopolni még mindig
-    private void writeHeaders(OutputStreamWriter outputStream) throws IOException {
+    private void writeHeaders(DataOutputStream outputStream) throws IOException {
 
         for(int i = 0; i < definedHeaders.size(); i++){
             int bytesUsedForHeader = 0;
@@ -144,33 +144,27 @@ public abstract class CompressService {
                 //id
                 String indicatedBinaryId = fileHeader.getIndicatedStringBinaryId();
                 bytesUsedForHeader += writeBinaryToFile(indicatedBinaryId, outputStream);
-                System.out.println("fájl id: " + id);
 
                 //relatív elhelyezkedés
                 bytesUsedForHeader += writeSizeAndBinaryToFile(fileHeader.getDistanceFromHeader(), outputStream);
-                System.out.println("távolság: " + fileHeader.getDistanceFromHeader());
 
                 //Tömörített állomány mérete
                 bytesUsedForHeader += writeSizeAndBinaryToFile(fileHeader.getFileSize(), outputStream);
-                System.out.println("állomány mérete: " + fileHeader.getFileSize());
 
                 //szemét bitek
                 bytesUsedForHeader += writeBinaryToFile(numberToBinary(fileHeader.getJunkBits()), outputStream);
-                System.out.println("junk: " + fileHeader.getJunkBits());
 
                 //Név és kiterjesztés
-                bytesUsedForHeader += writeBinaryToFile(numberToBinary(fileHeader.getNameAndExtension().length()), outputStream);
-                outputStream.write(fileHeader.getNameAndExtension());
-                bytesUsedForHeader += fileHeader.getNameAndExtension().length();
-                System.out.println("name and extension: " + fileHeader.getNameAndExtension());
+                int length = fileHeader.getNameAndExtension().getBytes(StandardCharsets.UTF_8).length;
+                bytesUsedForHeader += writeBinaryToFile(numberToBinary(length), outputStream);
+                outputStream.write(fileHeader.getNameAndExtension().getBytes(StandardCharsets.UTF_8));
+                bytesUsedForHeader += length;
 
                 //Módosítás dátuma
                 bytesUsedForHeader += writeSizeAndBinaryToFile(fileHeader.getModificationDate().getTime()/1000, outputStream);
-                System.out.println("modification date: " + fileHeader.getModificationDate().getTime()/1000);
 
                 //Létrehozás dátuma
                 bytesUsedForHeader += writeSizeAndBinaryToFile(fileHeader.getCreationDate().getTime()/1000, outputStream);
-                System.out.println("creation date: " + fileHeader.getCreationDate().getTime()/1000);
             }else{
                 //azonosító
                 String indicatedBinaryId = definedHeaders.get(i).getIndicatedStringBinaryId();
@@ -178,7 +172,7 @@ public abstract class CompressService {
 
                 //Név
                 bytesUsedForHeader += writeBinaryToFile(numberToBinary(definedHeaders.get(i).getNameAndExtension().length()), outputStream);
-                outputStream.write(definedHeaders.get(i).getNameAndExtension());
+                outputStream.write(definedHeaders.get(i).getNameAndExtension().getBytes(StandardCharsets.UTF_8));
                 bytesUsedForHeader += definedHeaders.get(i).getNameAndExtension().length();
 
                 //Létrehozás dátuma
@@ -196,12 +190,13 @@ public abstract class CompressService {
         }
     }
 
-    private int writeSizeAndBinaryToFile(long num, OutputStreamWriter outputStream) throws IOException {
+    private int writeSizeAndBinaryToFile(long num, DataOutputStream outputStream) throws IOException {
         int bytesUsed = 0;
         String s = numberToBinary(num);
-        int length = s.length()/8;
+        int length = (int)Math.ceil((double)s.length()/(double)8);
         bytesUsed += writeBinaryToFile(numberToBinary((length == 0) ? 1 : length), outputStream);
         bytesUsed += writeBinaryToFile(s, outputStream);
+        System.out.println(bytesUsed);
         return bytesUsed;
     }
 
@@ -215,7 +210,7 @@ public abstract class CompressService {
         return binary;
     }
 
-    private int writeBinaryToFile(String binary, OutputStreamWriter outputStream) throws IOException {
+    private int writeBinaryToFile(String binary, DataOutputStream outputStream) throws IOException {
         String s[] = binary.split("(?<=\\G.{8})");
 
         for(int i = 0; i < s.length; i++){
@@ -225,7 +220,7 @@ public abstract class CompressService {
         return s.length;
     }
 
-    protected void writeToFileBegin(OutputStreamWriter pw) throws IOException {
+    protected void writeToFileBegin(DataOutputStream pw) throws IOException {
 
     }
 

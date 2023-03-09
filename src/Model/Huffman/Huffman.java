@@ -1,4 +1,5 @@
 package Model.Huffman;
+import java.io.ByteArrayOutputStream;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -6,15 +7,15 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 
 public class Huffman {
-    private Map<Character, Integer> characterFrequencies;
-    private Map<Character, String> huffmanCodes;
+    private Map<Byte, Integer> characterFrequencies;
+    private Map<Byte, String> huffmanCodes;
     private Node huffmanTreeRoot;
-    private StringBuilder huffmanStringTree;
+    private ByteArrayOutputStream huffmanTree;
 
-    public Huffman(Map<Character, Integer> characterFrequencies){
-        this.characterFrequencies = characterFrequencies;
+    public Huffman(Map<Byte, Integer> byteFrequencies){
+        this.characterFrequencies = byteFrequencies;
         this.huffmanCodes = new HashMap<>();
-        this.huffmanStringTree = new StringBuilder();
+        this.huffmanTree = new ByteArrayOutputStream();
         generateHuffmanTree();
     }
 
@@ -26,14 +27,14 @@ public class Huffman {
         this.huffmanTreeRoot = node;
     }
 
-    public String getStringHuffmanTree(){
-        return this.huffmanStringTree.toString();
+    public byte[] getHuffmanTree(){
+        return this.huffmanTree.toByteArray();
     }
 
     private void generateHuffmanTree(){
         Queue<Node> queue = new PriorityQueue<Node>(new NodeComparator());
-        this.characterFrequencies.forEach((character, frequency) -> {
-            queue.add(new Leaf(character, frequency));
+        this.characterFrequencies.forEach((byt, frequency) -> {
+            queue.add(new Leaf(byt, frequency));
         });
 
         while(queue.size() > 1){
@@ -48,8 +49,9 @@ public class Huffman {
     }
     public void recursivePrintTree(Node node){
         if(node instanceof Leaf leafnode){
-          System.out.print("1");
-          System.out.print(leafnode.getCharacter());
+          System.out.print("1-");
+          System.out.print("("+leafnode.getValue()+")");
+          System.out.print("-");
           return;
         }
         recursivePrintTree(node.getLeftChild());
@@ -59,38 +61,47 @@ public class Huffman {
 
     private void generateHuffmanCodes(Node node, String code){
         if(node instanceof Leaf leafnode){
-            this.huffmanCodes.put(leafnode.getCharacter(), code);
-            huffmanStringTree.append("1");
-            huffmanStringTree.append(leafnode.getCharacter());
+            this.huffmanCodes.put(leafnode.getValue(), code);
+            huffmanTree.write('1');
+            huffmanTree.write(leafnode.getValue());
             return;
         }
         generateHuffmanCodes(node.getLeftChild(), code.concat("0"));
         generateHuffmanCodes(node.getRightChild(), code.concat("1"));
-        this.huffmanStringTree.append("0");
+        huffmanTree.write('0');
     }
-    public String encode(String s){
+    public String encode(byte[] bytes){
         StringBuilder sb = new StringBuilder();
-        for(char character : s.toCharArray()){
-            sb.append(this.huffmanCodes.get(character));
+        for(byte b : bytes){
+            sb.append(this.huffmanCodes.get(b));
         }
         return sb.toString();
     }
 
-    public String encodeChar(char c){
-        return this.huffmanCodes.get(c);
-    }
-
-    public String decode(String binary){
+    public byte[] decode(byte[] toDecode, byte junkBits){
         Node currentNode = huffmanTreeRoot;
-        StringBuilder decoded = new StringBuilder();
-        for(char c : binary.toCharArray()){
+        ByteArrayOutputStream decoded = new ByteArrayOutputStream();
+
+        StringBuilder binaryString = new StringBuilder();
+        for(int i = 0; i < toDecode.length; i++){
+          String temp = Integer.toBinaryString(toDecode[i] & 0xFF);
+          while(temp.length() != 8){
+            temp = "0" + temp;
+          }
+
+          binaryString.append(temp);
+        }
+
+        binaryString.setLength(binaryString.length()-junkBits);
+
+        for(char c : binaryString.toString().toCharArray()){
             currentNode = (c == '0') ? currentNode.getLeftChild() : currentNode.getRightChild();
             if(currentNode instanceof Leaf){
-              decoded.append(((Leaf)currentNode).getCharacter());
+              decoded.write(((Leaf)currentNode).getValue());
               currentNode = huffmanTreeRoot;
             }
         }
-        return decoded.toString();
+        return decoded.toByteArray();
     }
 
 

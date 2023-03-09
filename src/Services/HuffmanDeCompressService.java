@@ -9,7 +9,6 @@ import Model.Huffman.Node;
 import Model.RAFReader;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
@@ -27,6 +26,7 @@ public class HuffmanDeCompressService extends DeCompressService{
     public void deCompress(Folder folder, Path to) throws IOException {
         raf = new RAFReader(new File("Compressed.txt"));
         huffman.setTree(reconstructHuffmanTree());
+        huffman.printTree();
 
         //Rekurzív kicsomagolás a Path-re jej
         recursiveDeCompress(folder, to);
@@ -38,25 +38,20 @@ public class HuffmanDeCompressService extends DeCompressService{
             //Fájl elkészítése
             java.io.File innerFile = new File(to + "/" + fh.getNameAndExtension());
             try{
-              FileWriter fw = new FileWriter(innerFile, StandardCharsets.ISO_8859_1);
+              DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(innerFile)));
 
               long fileStart = raf.getFileSize() - fh.getPosFromFileEnd() - fh.getDistanceFromHeader();
               long fileSize = fh.getFileSize();
+              System.out.println("id : "+  fh.getId() + ", fileStart: " + fileStart + ", fileSize:" + fileSize);
 
               byte bytes[] = raf.readBytes(fileStart, fileSize);
-              StringBuilder binary = bytesToBinaryString(bytes);
-              binary.setLength(binary.length() - fh.getJunkBits());
+              System.out.println(Arrays.toString(bytes));
+              byte[] decoded = huffman.decode(bytes, fh.getJunkBits());
+              dos.write(decoded);
 
-              //MEGKELL SZEREZNI AZ UTF-8 KARAKTER KÓDOT ÉS AZT BELEIRNI UTF-8 KÓDOLÁSSAL
-
-              String decoded = huffman.decode(binary.toString());
-
-              for(char c : decoded.toCharArray()){
-                fw.write(c);
-              }
-
-              fw.flush();
-              fw.close();
+              dos.flush();
+              dos.close();
+              System.out.println("Kész: " + innerFile.toPath());
               Files.setAttribute(innerFile.toPath(), "creationTime", FileTime.fromMillis(fh.getCreationDate().getTime()));
               Files.setAttribute(innerFile.toPath(), "lastModifiedTime", FileTime.fromMillis(fh.getCreationDate().getTime()));
             }catch(IOException e){
@@ -82,11 +77,11 @@ public class HuffmanDeCompressService extends DeCompressService{
         Stack<Node> stack = new Stack();
 
         do{
-            char c = raf.readUTF8char();
-            if(c == '1'){
-                c = raf.readUTF8char();
-                stack.push(new Leaf(c, 0));
-            }else if(c == '0'){
+            byte b = raf.readByte();
+            if(b == '1'){
+                b = raf.readByte();
+                stack.push(new Leaf(b, 0));
+            }else if(b == '0'){
                 if(stack.size() == 1){
                     //megvan a gyökér
                     return stack.pop();
@@ -100,39 +95,4 @@ public class HuffmanDeCompressService extends DeCompressService{
 
         return null;
     }
-
-    public StringBuilder bytesToBinaryString(byte[] bytes){
-        StringBuilder binary = new StringBuilder();
-
-        for(byte b : bytes){
-          String temp = Integer.toBinaryString(b & 0xFF);
-          while(temp.length() < 8){
-            temp = "0" + temp;
-          }
-          binary.append(temp);
-        }
-
-        return binary;
-    }
-
-  byte[] charToUTF8Bytes(char c) {
-    byte[] result = null;
-    if (c <= 0x7F) {
-      // Character is within the ASCII range (1 byte)
-      result = new byte[1];
-      result[0] = (byte) c;
-    } else if (c <= 0x7FF) {
-      // Character is within the first 11 bits (2 bytes)
-      result = new byte[2];
-      result[0] = (byte) (0xC0 | (c >> 6));
-      result[1] = (byte) (0x80 | (c & 0x3F));
-    } else {
-      // Character is outside the first 11 bits (3 bytes)
-      result = new byte[3];
-      result[0] = (byte) (0xE0 | (c >> 12));
-      result[1] = (byte) (0x80 | ((c >> 6) & 0x3F));
-      result[2] = (byte) (0x80 | (c & 0x3F));
-    }
-    return result;
-  }
 }

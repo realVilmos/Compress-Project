@@ -1,14 +1,14 @@
 package Model.Huffman;
 public class Leaf extends Node{
 
-    private char character;
+    private byte binaryValue;
 
-    public Leaf(char character, int frequency) {
+    public Leaf(byte value, int frequency) {
         super(frequency);
-        this.character = character;
+        this.binaryValue = value;
     }
 
-    public char getCharacter() {
-        return character;
+    public byte getValue() {
+        return binaryValue;
     }
 }

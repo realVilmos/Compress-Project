@@ -98,16 +98,16 @@ public abstract class DeCompressService {
             fh.setPosFromFileEnd(contents.length - tempPos);
             //readNumber első értéke i, második az olvasott szám
             //Relatív távolság a fejléctől
-            System.out.println("relatív távolság:");
             fh.setDistanceFromHeader(readNumber());
+            System.out.println("relatív távolság: " + fh.getDistanceFromHeader());
 
-            System.out.println("tömörített méret:");
             //Tömörített fájl mérete
             fh.setFileSize(readNumber());
+            System.out.println("tömörített méret:" + fh.getFileSize());
 
-            System.out.println("Szemét:");
             //Szemét bitek
             fh.setJunkBits((byte)contents[contentCurrPos]);
+            System.out.println("Szemét:" + fh.getJunkBits());
             contentCurrPos++;
 
             //Név és kiterjesztés mérete
@@ -140,7 +140,7 @@ public abstract class DeCompressService {
         //Bájtok száma amely megállapítja a relatív elhelyezkedést
         int bytesUsed = 0;
         bytesUsed = contents[contentCurrPos];
-        System.out.println("bytesUsed: " + bytesUsed);
+        System.out.println(bytesUsed);
         contentCurrPos++;
 
         int bytes[] = new int[bytesUsed];
@@ -154,15 +154,14 @@ public abstract class DeCompressService {
 
     private long bytesToNumber(int bytes[]){
         String binaryString = "";
+        long num = 0;
+
         for(int i = 0; i < bytes.length; i++){
-            String tempBinary = Integer.toBinaryString(bytes[i]);
-            while(tempBinary.length() < 8){
-                tempBinary = "0" + tempBinary;
-            }
-            binaryString += tempBinary;
+          num += ((long) (bytes[i] & 0xFF) << (bytes.length-i-1)*8);
         }
 
-        return Long.parseLong(binaryString, 2);
+        System.out.println(num);
+        return num;
     }
 
 
