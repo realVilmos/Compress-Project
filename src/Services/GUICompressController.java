@@ -1,13 +1,17 @@
 package Services;
+import CompressionProject.ProgressBar;
 import Model.Folder;
 import Model.HierarchyInterface;
 import Model.IconTextRenderer;
 import Model.TableModel;
 import java.awt.Point;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.List;
 import java.util.Stack;
 import CompressionProject.GUI;
 import Model.File;
@@ -18,25 +22,30 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JTable;
+import javax.swing.*;
 
 public class GUICompressController {
 
     private GUI gui;
-    private CompressService compressService;
     private TableModel compressModel;
     private Stack<Folder> stack;
+    private Utils utils;
 
-    public GUICompressController(GUI gui, CompressService service){
+    private ProgressBar progressBar;
+
+    public GUICompressController(GUI gui, ProgressBar progressBar){
         this.gui = gui;
-        this.compressService = service;
         this.compressModel = new TableModel();
         this.stack = new Stack<>();
+        this.progressBar = progressBar;
 
         stack.push(new Folder(null, null));
 
+        utils = new Utils();
+
         gui.setCompressTableModel(compressModel);
         gui.setTableColumnModel(0, new IconTextRenderer());
+        gui.addFileImportHandler(new FileImportHandler());
         compressModel.setElements(stack.peek().getChildren());
 
         this.gui.addCompressTableMouseListener(new SelectedRowListener());
@@ -86,7 +95,7 @@ public class GUICompressController {
         @Override
         public void actionPerformed(ActionEvent e) {
             java.io.File files[] = gui.getSelectedFilesFromDialog();
-            compressService.addElementsToFolder(stack.peek(), files);
+            utils.addElementsToFolder(stack.peek(), files);
             updateGUI();
         }
     }
@@ -132,17 +141,24 @@ public class GUICompressController {
     }
 
     class CompressButtonListener implements ActionListener{
-
         @Override
         public void actionPerformed(ActionEvent e) {
             if(stack.peek().getChildren().size() > 0){
-                compressService.initialize(stack.elementAt(0));
-                compressService.compress();
+                java.io.File compressToPath = gui.getSelectedCompressLocation();
+                if(compressToPath == null){
+                  return;
+                }
+                progressBar.setVisible();
+                Thread t = new Thread(() -> {
+                  CompressService compressService = new HuffmanCompressService(progressBar);
+                  compressService.initialize(stack.elementAt(0));
+                  compressService.compress(compressToPath);
+                });
+                t.start();
             }else{
                 gui.displayErrorMessage("Kérem adjon hozzá fájlokat");
             }
         }
-
     }
 
     private void updateGUI(){
@@ -161,5 +177,35 @@ public class GUICompressController {
 
         gui.setCompressTableModel(compressModel);
         gui.setCompressNavigationTextField(path);
+    }
+
+    public class FileImportHandler extends TransferHandler {
+      @Override
+      public boolean canImport(TransferSupport support) {
+        return support.isDataFlavorSupported(DataFlavor.javaFileListFlavor);
+      }
+
+      @Override
+      public boolean importData(TransferSupport support) {
+        if (!canImport(support)) {
+          return false;
+        }
+
+        Transferable t = support.getTransferable();
+        try {
+          List<java.io.File[]> filesList = ((List<java.io.File[]>) t.getTransferData(DataFlavor.javaFileListFlavor));
+          java.io.File[] files = filesList.toArray(new java.io.File[filesList.size()]);
+
+          utils.addElementsToFolder(stack.peek(), files);
+          updateGUI();
+          for (java.io.File file : files) {
+            System.out.println(file.getAbsolutePath());
+          }
+          return true;
+        } catch (Exception e) {
+          e.printStackTrace();
+          return false;
+        }
+      }
     }
 }

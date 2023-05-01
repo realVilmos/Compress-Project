@@ -1,11 +1,14 @@
 package Services;
 
+import CompressionProject.ProgressBar;
 import Model.*;
 
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public abstract class DeCompressService {
     private ArrayList<FolderHeader> headers = new ArrayList<>();
@@ -13,7 +16,12 @@ public abstract class DeCompressService {
     private int contentCurrPos;
     private final int OPEN_BRACKET = 0x5B;
     private final int CLOSE_BRACKET = 0x5D;
-    public Folder buildHierarchyModel(java.io.File f) throws IOException{
+    protected java.io.File compressedFile;
+    protected RAFReader raf;
+
+    public Folder buildHierarchyModel(java.io.File f){
+        this.compressedFile = f;
+        this.raf = new RAFReader(this.compressedFile);
         Folder root = new Folder();
         contents = getFileContentAfterSignature(f);
 
@@ -37,12 +45,8 @@ public abstract class DeCompressService {
             contentCurrPos++;
         }
         String hierarchy = new String(createByteSubArray(0, contentCurrPos-1));
-        root.setChildren(traverseHierarchyTreeFolder(hierarchy));
+        root.setChildren(traverseHierarchyTree(hierarchy));
         System.out.println(hierarchy);
-
-        for(int i : contents){
-          System.out.printf("%d ", i);
-        }
 
         while(contentCurrPos < contents.length){
             buildHeader();
@@ -51,9 +55,13 @@ public abstract class DeCompressService {
         return root;
     }
 
-    protected void deCompress(Folder folder, Path to) throws IOException {
+    protected void deCompress(Folder folder, Path to){
 
     }
+
+    protected void deCompress(List<HierarchyInterface> list, Path to){}
+
+    protected void recursiveDeCompress(Folder folder, Path to){}
 
     private void buildHeader(){
         //Addig kell olvasni az ID-t amíg 1-el kezdődik a binary string
@@ -180,7 +188,7 @@ public abstract class DeCompressService {
 
     }
 
-    private ArrayList<HierarchyInterface> traverseHierarchyTreeFolder(String contents){
+    private ArrayList<HierarchyInterface> traverseHierarchyTree(String contents){
         String currId = "";
         ArrayList<HierarchyInterface> children = new ArrayList<>();
 
@@ -212,7 +220,7 @@ public abstract class DeCompressService {
                             Folder folder = new Folder();
                             //Üres, ne nézzük a gyerekeit
                             if(folderStart != (charPos-1)){
-                                folder.setChildren(traverseHierarchyTreeFolder(contents.substring(folderStart, charPos-1)));
+                                folder.setChildren(traverseHierarchyTree(contents.substring(folderStart, charPos-1)));
                             }
                             FolderHeader fh = new FolderHeader();
                             fh.setId(Integer.parseInt(currId));
@@ -255,12 +263,16 @@ public abstract class DeCompressService {
         return children;
     }
 
-    private int[] getFileContentAfterSignature(java.io.File f) throws IOException{
-        ReverseReader rr = new ReverseReader(f);
-        int[] content = rr.readUntilSignature();
-        rr.close();
-
-        return content;
+    private int[] getFileContentAfterSignature(java.io.File f){
+        try{
+          ReverseReader rr = new ReverseReader(f);
+          int[] content = rr.readUntilSignature();
+          rr.close();
+          return content;
+        }catch(IOException e){
+          e.printStackTrace();
+        }
+        return new int[]{};
     }
 
     private byte[] createByteSubArray(int from, int dest){

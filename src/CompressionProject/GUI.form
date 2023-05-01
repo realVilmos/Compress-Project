@@ -149,7 +149,7 @@
                     <Component class="javax.swing.JButton" name="addElementToCompressBtn">
                       <Properties>
                         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                          <Image iconType="3" name="/icons/package-variant-plus(1).png"/>
+                          <Image iconType="3" name="/resources/icons/package-variant-plus(1).png"/>
                         </Property>
                         <Property name="text" type="java.lang.String" value="&lt;html&gt;F&#xe1;jl/Mappa&lt;br&gt;hozz&#xe1;ad&#xe1;sa"/>
                         <Property name="horizontalTextPosition" type="int" value="0"/>
@@ -160,7 +160,7 @@
                     <Component class="javax.swing.JButton" name="removeElementToCompressBtn">
                       <Properties>
                         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                          <Image iconType="3" name="/icons/package-variant-minus.png"/>
+                          <Image iconType="3" name="/resources/icons/package-variant-minus.png"/>
                         </Property>
                         <Property name="text" type="java.lang.String" value="&lt;html&gt;F&#xe1;jl/Mappa&lt;br&gt;elt&#xe1;vol&#xed;t&#xe1;sa"/>
                         <Property name="horizontalTextPosition" type="int" value="0"/>
@@ -171,7 +171,7 @@
                     <Component class="javax.swing.JButton" name="compressBtn">
                       <Properties>
                         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                          <Image iconType="3" name="/icons/package-variant-closed.png"/>
+                          <Image iconType="3" name="/resources/icons/package-variant-closed.png"/>
                         </Property>
                         <Property name="text" type="java.lang.String" value="T&#xf6;m&#xf6;r&#xed;t&#xe9;s"/>
                         <Property name="horizontalTextPosition" type="int" value="0"/>
@@ -333,7 +333,7 @@
                     <Component class="javax.swing.JButton" name="chooseCompressedFileBtn">
                       <Properties>
                         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                          <Image iconType="3" name="/icons/package-variant-closed.png"/>
+                          <Image iconType="3" name="/resources/icons/package-variant-closed.png"/>
                         </Property>
                         <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;center&gt;Kibontand&#xf3; f&#xe1;jl&lt;br&gt;kiv&#xe1;laszt&#xe1;sa"/>
                         <Property name="toolTipText" type="java.lang.String" value=""/>
@@ -345,7 +345,7 @@
                     <Component class="javax.swing.JButton" name="deCompressBtn">
                       <Properties>
                         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                          <Image iconType="3" name="/icons/package-variant.png"/>
+                          <Image iconType="3" name="/resources/icons/package-variant.png"/>
                         </Property>
                         <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;center&gt; Kiv&#xe1;lasztott&lt;br&gt; f&#xe1;jlok &#xe9;s mapp&#xe1;k &lt;br&gt; kibont&#xe1;sa"/>
                         <Property name="toolTipText" type="java.lang.String" value=""/>
@@ -414,9 +414,21 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" attributes="0">
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <EmptySpace min="-2" pref="55" max="-2" attributes="0"/>
+                              <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <EmptySpace min="-2" pref="39" max="-2" attributes="0"/>
+                              <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
                       <EmptySpace pref="738" max="32767" attributes="0"/>
                   </Group>
               </Group>
@@ -424,9 +436,13 @@
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
+                      <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="393" max="32767" attributes="0"/>
+                      <EmptySpace pref="165" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -435,6 +451,21 @@
             <Component class="javax.swing.JLabel" name="jLabel1">
               <Properties>
                 <Property name="text" type="java.lang.String" value="K&#xe9;sz&#xed;tette: Bogn&#xe1;r Vilmos Zsolt"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JLabel" name="jLabel2">
+              <Properties>
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="Segoe UI" size="14" style="1"/>
+                </Property>
+                <Property name="text" type="java.lang.String" value="Archiva"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JLabel" name="jLabel3">
+              <Properties>
+                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                  <Image iconType="3" name="/resources/icons/main-icon.png"/>
+                </Property>
               </Properties>
             </Component>
           </SubComponents>

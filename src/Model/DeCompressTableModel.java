@@ -1,10 +1,16 @@
 package Model;
 
+import CompressionProject.CompressorMain;
+
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.table.AbstractTableModel;
 
@@ -50,9 +56,14 @@ public class DeCompressTableModel extends AbstractTableModel{
 
         switch(columnIndex) {
             case 0: {
-                ImageIcon icon = (elem instanceof Folder) ? new ImageIcon("src/icons/folder.png") : new ImageIcon("src/icons/file.png");
+              try {
+                URL url = (elem instanceof Folder) ? CompressorMain.class.getResource("/icons/folder.png") : CompressorMain.class.getResource("/icons/file.png");
+                BufferedImage icon = ImageIO.read(url);
                 String filename = header.getNameAndExtension();
-                return new IconTextItem(filename, icon);
+                return new IconTextItem(filename, new ImageIcon(icon));
+              } catch (IOException e) {
+                throw new RuntimeException(e);
+              }
             }
             case 1:{
                 String pattern = "yyyy. MM. dd  HH:mm:ss";

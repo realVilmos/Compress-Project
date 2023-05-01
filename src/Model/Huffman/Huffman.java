@@ -49,9 +49,9 @@ public class Huffman {
     }
     public void recursivePrintTree(Node node){
         if(node instanceof Leaf leafnode){
-          System.out.print("1-");
+          System.out.print("1");
           System.out.print("("+leafnode.getValue()+")");
-          System.out.print("-");
+          System.out.print("");
           return;
         }
         recursivePrintTree(node.getLeftChild());
@@ -60,6 +60,9 @@ public class Huffman {
     }
 
     private void generateHuffmanCodes(Node node, String code){
+        if(node == null){
+          return;
+        }
         if(node instanceof Leaf leafnode){
             this.huffmanCodes.put(leafnode.getValue(), code);
             huffmanTree.write('1');
@@ -70,38 +73,13 @@ public class Huffman {
         generateHuffmanCodes(node.getRightChild(), code.concat("1"));
         huffmanTree.write('0');
     }
-    public String encode(byte[] bytes){
-        StringBuilder sb = new StringBuilder();
-        for(byte b : bytes){
-            sb.append(this.huffmanCodes.get(b));
-        }
-        return sb.toString();
+
+    public Map<Byte, String> getHuffmanCodesMap(){
+      return this.huffmanCodes;
     }
 
-    public byte[] decode(byte[] toDecode, byte junkBits){
-        Node currentNode = huffmanTreeRoot;
-        ByteArrayOutputStream decoded = new ByteArrayOutputStream();
-
-        StringBuilder binaryString = new StringBuilder();
-        for(int i = 0; i < toDecode.length; i++){
-          String temp = Integer.toBinaryString(toDecode[i] & 0xFF);
-          while(temp.length() != 8){
-            temp = "0" + temp;
-          }
-
-          binaryString.append(temp);
-        }
-
-        binaryString.setLength(binaryString.length()-junkBits);
-
-        for(char c : binaryString.toString().toCharArray()){
-            currentNode = (c == '0') ? currentNode.getLeftChild() : currentNode.getRightChild();
-            if(currentNode instanceof Leaf){
-              decoded.write(((Leaf)currentNode).getValue());
-              currentNode = huffmanTreeRoot;
-            }
-        }
-        return decoded.toByteArray();
+    public Node getHuffmanTreeRoot(){
+      return this.huffmanTreeRoot;
     }
 
 

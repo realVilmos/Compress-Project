@@ -13,9 +13,9 @@ public class File implements HierarchyInterface{
         this.path = path;
         this.attr = attr;
     }
-    
+
     public File(){
-        
+
     }
 
     public Path getPath() {
@@ -33,11 +33,15 @@ public class File implements HierarchyInterface{
     public void setAttr(BasicFileAttributes attr) {
         this.attr = attr;
     }
-    
+
     public String getName(){
+      if(this.path == null){
+        return this.header.nameAndExtension;
+      }else{
         return this.path.getFileName().toString();
+      }
     }
-    
+
     @Override
     public Date getCreationDate() {
         return new Date(this.attr.creationTime().toMillis());
@@ -52,7 +56,7 @@ public class File implements HierarchyInterface{
     public void setHeader(FolderHeader header) {
         this.header = header;
     }
-    
+
     @Override
     public Date getLastModifiedDate() {
         return new Date(this.attr.lastModifiedTime().toMillis());

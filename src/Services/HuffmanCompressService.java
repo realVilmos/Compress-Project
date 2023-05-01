@@ -1,95 +1,98 @@
 package Services;
 
+import CompressionProject.ProgressBar;
 import Model.File;
 import Model.Folder;
 import Model.HierarchyInterface;
 import Model.Huffman.Huffman;
+import Model.QueueEntry;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.*;
 
 public class HuffmanCompressService extends CompressService {
 
     private Huffman huffman;
     private Map<Byte, Integer> byteFrequencies;
+    private final int CHUNK_SIZE = 4 * 1024; //4KB
+    private int sequence;
 
-    public HuffmanCompressService(Folder folder){
-        super(folder);
+    public HuffmanCompressService(Folder folder, ProgressBar progressBar){
+        super(folder, progressBar);
         this.byteFrequencies = new HashMap<>();
         getAllByteFrequencies(folder, byteFrequencies);
         this.huffman = new Huffman(byteFrequencies);
-        printByteFrequecies();
+        sequence = 0;
     }
 
-    public HuffmanCompressService(){
-        super();
+    public HuffmanCompressService(ProgressBar progressBar){
+        super(progressBar);
+        sequence = 0;
     }
     @Override
     public void initialize(Folder folder){
         super.rootFolder = folder;
+        this.progressBar.reset(0);
         this.byteFrequencies = new HashMap<>();
+        progressBar.setProgressText("Huffman fa elkészítése");
         getAllByteFrequencies(folder, byteFrequencies);
         this.huffman = new Huffman(byteFrequencies);
-        printByteFrequecies();
     }
 
     @Override
-    protected long[] encodeAndWriteFile(File f, DataOutputStream outputStream){
-        //Visszaadja az utolsó bájtban található szemét bitek számát
-        byte junkbits = 0;
-        long length = 0;
-        try{
-            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(f.getPath().toFile()));
-            byte[] buffer = new byte[4096];
-            int bytesRead;
+    protected long[] encodeAndWriteFile(File file, LinkedBlockingQueue<QueueEntry> queue, ExecutorService executor){
+      long length;
+      byte junkbits;
 
-            String leftover = "";
-            StringBuilder encoded = new StringBuilder();
-            while((bytesRead = bis.read(buffer)) != -1){
-              encoded.append(leftover);
-              if(bytesRead < buffer.length){
-                byte[] temp = new byte[bytesRead];
-                java.lang.System.arraycopy(buffer, 0, temp, 0, bytesRead);
-                encoded.append(huffman.encode(temp));
-              }else{
-                encoded.append(huffman.encode(buffer));
-              }
+      length = 0;
+      junkbits = 0;
 
-              String binaryByteStrings[] = encoded.toString().split(("(?<=\\G.{8})"));
+      try {
+        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file.getPath().toFile()));
+        final Map<Byte, String> huffmanCodes = huffman.getHuffmanCodesMap();
 
-              int bytesToEncode = binaryByteStrings.length;
+        byte[] buffer = new byte[CHUNK_SIZE];
+        int bytesRead;
 
-              if(binaryByteStrings[binaryByteStrings.length-1].length() != 8){
-                leftover = binaryByteStrings[binaryByteStrings.length-1];
-                bytesToEncode--;
-              }
-              length+=bytesToEncode;
+        StringBuilder sb = new StringBuilder();
+        while ((bytesRead = bis.read(buffer)) != -1) {
+          for(int i = 0; i < bytesRead; i++){
+            sb.append(huffmanCodes.get(buffer[i]));
+          }
 
-              for(int i = 0; i < bytesToEncode; i++){
-                outputStream.write(Integer.parseInt(binaryByteStrings[i], 2));
-              }
+          int remainder = sb.length() % 8;
+          String temp = "";
 
-              encoded.setLength(0);
-            }
-
-            //Maradék keletkezett azaz szemét is
-            if(leftover.length() != 0){
-              junkbits = (byte)(8 - leftover.length());
-              while(leftover.length() < 8){
-                leftover = leftover + "0";
-              }
-              outputStream.write(Integer.parseInt(leftover, 2));
-              length+=1;
-            }
-
-            bis.close();
-        }catch(IOException e){
-            e.printStackTrace();
+          if(remainder != 0){
+            temp = sb.substring(sb.length()-remainder, sb.length());
+            sb.setLength(sb.length()-remainder);
+          }
+          sequence++;
+          while(((ThreadPoolExecutor)executor).getActiveCount() >= ((ThreadPoolExecutor)executor).getCorePoolSize()) {
+            Thread.sleep(100);
+          }
+          executor.submit(new ProcessHuffmanChunk(sequence, sb.toString(), queue));
+          length += sb.length()/8;
+          sb.setLength(0);
+          sb.append(temp);
         }
 
-        return new long[]{junkbits, length};
+        //Maradt szemét, de ez mehet ahogy van
+        if(sb.length() > 0){
+          sequence++;
+          executor.submit(new ProcessHuffmanChunk(sequence, sb.toString(), queue));
+
+          length += (int)Math.ceil((double)sb.length()/(double)8);
+          junkbits = (byte)(8-sb.length());
+        }
+
+      } catch (IOException e) {
+        e.printStackTrace();
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+      return new long[]{length, junkbits};
     }
 
     @Override
@@ -101,7 +104,6 @@ public class HuffmanCompressService extends CompressService {
         outputStream.write('0');
     }
 
-    //Ez valószínűleg túl drága, de szükséges
     private void getAllByteFrequencies(Folder folder, Map<Byte, Integer> characterFrequencies){
         for(HierarchyInterface Elem : folder.getChildren()){
             if(Elem instanceof Folder){
@@ -110,7 +112,7 @@ public class HuffmanCompressService extends CompressService {
                 try{
                     File f = (File)Elem;
                     BufferedInputStream bis = new BufferedInputStream(new FileInputStream(f.getPath().toFile()));
-                    byte[] buffer = new byte[1024];
+                    byte[] buffer = new byte[CHUNK_SIZE];
                     int bytesRead;
 
                     while((bytesRead = bis.read(buffer)) != -1){
@@ -127,11 +129,34 @@ public class HuffmanCompressService extends CompressService {
             }
         }
     }
+}
 
-    private void printByteFrequecies(){
-      for(byte b : byteFrequencies.keySet()){
-        System.out.println(b + ": " + byteFrequencies.get(b));
-      }
+class ProcessHuffmanChunk implements Runnable {
+  int sequence;
+  String chunk;
+  LinkedBlockingQueue<QueueEntry> queue;
+
+  ProcessHuffmanChunk(int sequence, String chunk, LinkedBlockingQueue<QueueEntry> queue){
+    this.sequence = sequence;
+    this.chunk = chunk;
+    this.queue = queue;
+  }
+  public void run() {
+    String[] binaryByteStrings = chunk.split(("(?<=\\G.{8})"));
+    byte[] data = new byte[binaryByteStrings.length];
+
+    for(int i = 0; i < data.length; i++){
+      data[i] = (byte)Integer.parseInt(binaryByteStrings[i], 2);
     }
 
+    try {
+      queue.put(new QueueEntry(sequence, data));
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+    data = null;
+    chunk = null;
+    queue = null;
+    sequence = 0;
+  }
 }

@@ -1,5 +1,6 @@
 package Services;
 
+import CompressionProject.ProgressBar;
 import Model.FileHeader;
 import Model.Folder;
 import Model.HierarchyInterface;
@@ -13,30 +14,76 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Stack;
+import javax.swing.JOptionPane;
 
 public class HuffmanDeCompressService extends DeCompressService{
-    Huffman huffman = new Huffman();
-    RAFReader raf;
+    private Huffman huffman = new Huffman();
+    private ProgressBar progressBar;
+    private final int CHUNK_SIZE = 4 * 1024; //4KB
+    private Utils utils;
 
-    public HuffmanDeCompressService() throws IOException {
+    public HuffmanDeCompressService(ProgressBar progressBar){
       super();
+      this.progressBar = progressBar;
+      this.utils = new Utils();
     }
     @Override
-    public void deCompress(Folder folder, Path to) throws IOException {
-        raf = new RAFReader(new File("Compressed.txt"));
-        huffman.setTree(reconstructHuffmanTree());
-        huffman.printTree();
+    public void deCompress(Folder folder, Path to) {
+        try{
+          this.progressBar.reset(0);;
+          huffman.setTree(reconstructHuffmanTree());
+          progressBar.setProgressLength(utils.getNumberOfFiles(folder));
 
-        //Rekurzív kicsomagolás a Path-re jej
-        recursiveDeCompress(folder, to);
+          progressBar.setVisible();
+
+          recursiveDeCompress(folder, to);
+
+          progressBar.hide();
+        }catch(IOException e){
+          e.printStackTrace();
+        }
     }
 
+    public void deCompress(List<HierarchyInterface> list, Path to){
+      try{
+        Folder root = new Folder();
+        for(HierarchyInterface elem : list){
+          root.addChild(elem);
+        }
+
+        this.progressBar.reset(0);;
+        huffman.setTree(reconstructHuffmanTree());
+        progressBar.setProgressLength(utils.getNumberOfFiles(root));
+
+        progressBar.setVisible();
+
+        recursiveDeCompress(root, to);
+
+        progressBar.hide();
+      }catch(IOException e){
+        e.printStackTrace();
+      }
+    }
+    @Override
     public void recursiveDeCompress(Folder folder, Path to){
         for(HierarchyInterface elem : folder.getChildren()){
           if (elem.getHeader() instanceof FileHeader fh){
             //Fájl elkészítése
             java.io.File innerFile = new File(to + "/" + fh.getNameAndExtension());
+            if(innerFile.exists()) {
+              int res = JOptionPane.showConfirmDialog(null, "A(z) " + innerFile.getName() + " fájl már létezik! Fellül kívánja írni?");
+              if(res == JOptionPane.YES_OPTION){
+                try{
+                  Files.delete(innerFile.toPath());
+                }catch (IOException e){
+                  e.printStackTrace();
+                }
+              }else{
+                continue;
+              }
+            }
             try{
               DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(innerFile)));
 
@@ -44,14 +91,54 @@ public class HuffmanDeCompressService extends DeCompressService{
               long fileSize = fh.getFileSize();
               System.out.println("id : "+  fh.getId() + ", fileStart: " + fileStart + ", fileSize:" + fileSize);
 
-              byte bytes[] = raf.readBytes(fileStart, fileSize);
-              System.out.println(Arrays.toString(bytes));
-              byte[] decoded = huffman.decode(bytes, fh.getJunkBits());
-              dos.write(decoded);
+              long bytesRead = 0;
+              StringBuilder binaryString = new StringBuilder();
+              while(bytesRead < fileSize){
+                byte[] buffer;
+                if(bytesRead + CHUNK_SIZE >= fileSize){
+                  buffer = raf.readBytes(fileStart+bytesRead, fileSize-bytesRead);
+                  bytesRead = fileSize;
+                }else{
+                  buffer = raf.readBytes(fileStart+bytesRead, CHUNK_SIZE);
+                  bytesRead += CHUNK_SIZE;
+                }
+
+                for(byte b : buffer){
+                  String temp = Integer.toBinaryString(b & 0xFF);
+                  while(temp.length() != 8){
+                    temp = "0" + temp;
+                  }
+                  binaryString.append(temp);
+                }
+
+                if(bytesRead == fileSize){
+                  binaryString.setLength(binaryString.length()-fh.getJunkBits());
+                }
+
+                Node currentNode = huffman.getHuffmanTreeRoot();
+
+                char[] binaryArr = binaryString.toString().toCharArray();
+                int writtenUntil = 0;
+
+                for(int i = 0; i < binaryArr.length; i++){
+                  currentNode = (binaryArr[i] == '0') ? currentNode.getLeftChild() : currentNode.getRightChild();
+                  if(currentNode instanceof Leaf){
+                    writtenUntil = i;
+                    dos.write(((Leaf)currentNode).getValue());
+                    currentNode = huffman.getHuffmanTreeRoot();
+                  }
+                }
+
+                String leftOver = binaryString.substring(writtenUntil+1, binaryString.length());
+                binaryString.setLength(0);
+                binaryString.append(leftOver);
+              }
+
+              progressBar.increment();
 
               dos.flush();
               dos.close();
-              System.out.println("Kész: " + innerFile.toPath());
+              progressBar.setProgressText("Kicsomagolva: " + innerFile.toPath());
               Files.setAttribute(innerFile.toPath(), "creationTime", FileTime.fromMillis(fh.getCreationDate().getTime()));
               Files.setAttribute(innerFile.toPath(), "lastModifiedTime", FileTime.fromMillis(fh.getCreationDate().getTime()));
             }catch(IOException e){
@@ -82,6 +169,7 @@ public class HuffmanDeCompressService extends DeCompressService{
                 b = raf.readByte();
                 stack.push(new Leaf(b, 0));
             }else if(b == '0'){
+                if(stack.size() == 0) return null;
                 if(stack.size() == 1){
                     //megvan a gyökér
                     return stack.pop();

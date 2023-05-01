@@ -47,9 +47,7 @@ public class ReverseReader {
 
     Collections.reverse(unsignedBytes);
 
-    int[] arr = unsignedBytes.stream().mapToInt(i -> i).toArray();
-
-    return arr;
+    return unsignedBytes.stream().mapToInt(i -> i).toArray();
   }
 
   private int readNextUnsignedByte() throws IOException {
@@ -64,10 +62,6 @@ public class ReverseReader {
       raf.close();
       raf = null;
     }
-  }
-
-  public boolean ready(){
-    return (position>0) ? true : false;
   }
 
 }

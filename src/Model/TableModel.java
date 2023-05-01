@@ -1,9 +1,15 @@
 package Model;
 
+import CompressionProject.CompressorMain;
+
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.table.AbstractTableModel;
 
@@ -34,9 +40,14 @@ public class TableModel extends AbstractTableModel{
         HierarchyInterface elem = this.elements.get(rowIndex);
         switch(columnIndex) {
             case 0: {
-                ImageIcon icon = (elem instanceof Folder) ? new ImageIcon("src/icons/folder.png") : new ImageIcon("src/icons/file.png");
-                String filename = elem.getName();
-                return new IconTextItem(filename, icon);
+                try{
+                  URL url = (elem instanceof Folder) ? CompressorMain.class.getResource("/icons/folder.png") : CompressorMain.class.getResource("/icons/file.png");
+                  BufferedImage icon = ImageIO.read(url);
+                  String filename = elem.getName();
+                  return new IconTextItem(filename, new ImageIcon(icon));
+                }catch(IOException e){
+                  e.printStackTrace();
+                }
             }
             case 1:{
                 String pattern = "yyyy. MM. dd  HH:mm:ss";
