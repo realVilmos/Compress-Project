@@ -50,7 +50,7 @@ Section -Pre
       /NOPROXY \
       /WEAKSECURITY \
       /USERAGENT "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36" \
-      "https://download.oracle.com/java/19/latest/jdk-19_windows-x64_bin.msi" "$TEMP\jdk-19_windows-x64_bin.msi"
+      "https://github.com/adoptium/temurin19-binaries/releases/download/jdk-19.0.2%2B7/OpenJDK19U-jdk_x64_windows_hotspot_19.0.2_7.msi" "$TEMP\jdk-19_windows-x64_bin.msi"
 
       Pop $0
       StrCmp $0 "OK" install
